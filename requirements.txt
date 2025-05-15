@@ -1,1 +1,8 @@
-fastapiuvicornpandasnumpy  
+fastapi
+uvicorn
+pandas
+numpy
+
+
+ 
+ 
