@@ -5,7 +5,8 @@ import io
 import numpy as np
 
 from services.cleaner import clean_demand
-from services.forecast import forecast_engine  # ⬅️ comparativa eliminada
+from services.forecast import forecast_engine
+from services.stock_projector import project_stock_multi  # ✅ NUEVO
 
 app = FastAPI()
 
@@ -74,6 +75,24 @@ async def calcular_forecast(request: Request):
     except Exception as e:
         print("❌ ERROR EN FORECAST:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- Proyección de stock ---
+@app.post("/proyeccion-stock")
+async def calcular_proyeccion_stock(request: Request):
+    try:
+        data = await request.json()
+        forecast = data.get("forecast", [])
+        stock_actual = data.get("stock_actual", [])
+        reposiciones = data.get("reposiciones", [])
+        maestro = data.get("maestro", [])
+
+        df_resultado = project_stock_multi(forecast, stock_actual, reposiciones, maestro)
+        return df_resultado.to_dict(orient="records")
+
+    except Exception as e:
+        print("❌ ERROR EN PROYECCIÓN DE STOCK:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
