@@ -17,6 +17,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://planity-fronted-uozd.vercel.app",  # ✅ Frontend en producción
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -73,6 +74,7 @@ async def calcular_forecast(request: Request):
     except Exception as e:
         print("❌ ERROR EN FORECAST:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
