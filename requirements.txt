@@ -3,6 +3,8 @@ uvicorn
 pandas
 numpy
 python-multipart
+statsmodels
+
 
 
 
