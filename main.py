@@ -6,24 +6,31 @@ import numpy as np
 
 from services.cleaner import clean_demand
 from services.forecast import forecast_engine
-from services.stock_projector import project_stock_multi  # ✅ NUEVO
+from services.stock_projector import project_stock_multi
 
+# ✅ Crear app primero
 app = FastAPI()
 
 print("🧠 ESTOY EN EL BACKEND CORRECTO", flush=True)
 
-# --- CORS ---
+# ✅ Middleware CORS debe ir inmediatamente después de instanciar la app
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://planity-fronted-uozd.vercel.app",  # ✅ Frontend en producción
+        "http://localhost",
+        "http://127.0.0.1",
+        "https://planity-fronted-uozd.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ✅ Luego se importan los routers (esto es clave)
+from routes.gestion_inventario import router as gestion_router
+app.include_router(gestion_router)
 
 # --- Ruta raíz ---
 @app.get("/")
@@ -92,6 +99,17 @@ async def calcular_proyeccion_stock(request: Request):
     except Exception as e:
         print("❌ ERROR EN PROYECCIÓN DE STOCK:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+
+
+
+
+
+
 
 
 

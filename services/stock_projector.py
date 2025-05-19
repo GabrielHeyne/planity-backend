@@ -72,3 +72,6 @@ def project_stock_multi(forecast_raw, stock_raw, repos_raw, maestro_raw):
     return pd.DataFrame(resultados)
 
 
+
+
+
