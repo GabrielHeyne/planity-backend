@@ -13,8 +13,8 @@ async def calcular_forecast(request: Request):
         comparativa = generar_comparativa_forecasts(df)
 
         return {
-            "forecast": forecast.to_dict(orient="records"),
-            "comparativa": comparativa.to_dict(orient="records")
+            "forecast": forecast.fillna(0).to_dict(orient="records"),
+            "comparativa": comparativa.fillna(0).to_dict(orient="records")
         }
 
     except Exception as e:

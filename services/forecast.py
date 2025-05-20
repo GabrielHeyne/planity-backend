@@ -27,6 +27,7 @@ def safe_forecast(serie, metodo_forecast):
     return round(pred)
 
 def forecast_engine(df):
+    df = df.dropna(subset=["fecha", "sku", "demanda"])  # evita NaNs
     df['fecha'] = pd.to_datetime(df['fecha'])
     df['mes'] = df['fecha'].dt.to_period('M')
     df_mensual = df.groupby(['sku', 'mes']).agg({
@@ -91,6 +92,7 @@ def forecast_engine(df):
     df_result['mes'] = pd.to_datetime(df_result['mes']).dt.strftime('%Y-%m')
     df_result['forecast'] = df_result['forecast'].round()
     df_result['forecast_up'] = df_result['forecast_up'].round()
+    df_result = df_result.fillna(0)
     return df_result
 
 

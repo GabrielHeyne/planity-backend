@@ -11,9 +11,23 @@ def clean_demand(demanda_raw: list, stock_raw: list) -> list:
 
     # --- Preprocesar demanda ---
     df = pd.DataFrame(demanda_raw)
+    print("🧪 Columnas recibidas en df_demanda (desde demanda_raw):", df.columns.tolist(), flush=True)
+
+    # Convertir fecha y semana
     df["fecha"] = pd.to_datetime(df["fecha"])
     df["semana"] = df["fecha"] - pd.to_timedelta(df["fecha"].dt.weekday, unit='D')
+
+    # Validar existencia de columna 'demanda'
+    if "demanda" not in df.columns:
+        raise ValueError(f"❌ Columna 'demanda' no encontrada. Columnas actuales: {df.columns.tolist()}")
+
+    # Reemplazar valores no válidos por 0
+    df["demanda"] = df["demanda"].replace(["N/A", "n/a", "undefined", "", None], 0)
+
+    # Convertir a número, luego a entero
     df["demanda_original"] = pd.to_numeric(df["demanda"], errors="coerce").fillna(0).astype(int)
+
+    # Filtrar columnas
     df = df[["sku", "semana", "demanda_original"]]
     print(f"✅ Preprocesamiento demanda: {round(time.time() - t0, 2)} seg")
 
@@ -117,12 +131,16 @@ def clean_demand(demanda_raw: list, stock_raw: list) -> list:
     print(f"🧪 Limpieza por SKU: {round(time.time() - t1, 1)} seg")
 
     df_final = pd.concat(resultados).sort_values(["sku", "semana"])
-    df_final = df_final.rename(columns={"semana": "fecha"})
-    resultado = df_final.to_dict(orient="records")
+
+    # ✅ Mantener 'semana' y generar columna 'fecha' correcta
+    df_final["fecha"] = pd.to_datetime(df_final["semana"])  # fecha = lunes de cada semana, tipo datetime
+
+    resultado = df_final.sort_values(["sku", "fecha"]).to_dict(orient="records")
 
     print(f"✅ Limpieza completada. Total filas: {len(resultado)}")
     print(f"⏱️ Tiempo total: {round(time.time() - t0, 1)} seg")
     return resultado
+
 
 
 
