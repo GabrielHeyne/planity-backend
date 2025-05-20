@@ -7,6 +7,7 @@ import numpy as np
 from services.cleaner import clean_demand
 from services.forecast import forecast_engine
 from services.stock_projector import project_stock_multi
+from routes.cloud_loader import router as cloud_router
 
 # ✅ Crear app primero
 app = FastAPI()
@@ -27,6 +28,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(cloud_router)
+
 
 # ✅ Luego se importan los routers (esto es clave)
 from routes.gestion_inventario import router as gestion_router
