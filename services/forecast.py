@@ -95,6 +95,41 @@ def forecast_engine(df):
     df_result = df_result.fillna(0)
     return df_result
 
+def generar_comparativa_forecasts(df):
+    df['fecha'] = pd.to_datetime(df['fecha'])
+    df['mes'] = df['fecha'].dt.to_period('M')
+    df_mensual = df.groupby(['sku', 'mes']).agg({'demanda_sin_outlier': 'sum'}).reset_index()
+    df_mensual.rename(columns={'demanda_sin_outlier': 'demanda_limpia'}, inplace=True)
+    df_mensual['mes'] = df_mensual['mes'].dt.to_timestamp()
+
+    comparativas = []
+    for sku in df_mensual['sku'].unique():
+        df_sku = df_mensual[df_mensual['sku'] == sku].copy()
+        df_sku = df_sku[df_sku['demanda_limpia'] > 0]
+        if len(df_sku) < 2:
+            continue
+
+        serie = df_sku.set_index('mes')['demanda_limpia']
+
+        prom_movil = forecast_promedio_movil(serie)[0]
+        ses = forecast_ses(serie)[0]
+
+        df_temp = pd.DataFrame({
+            'sku': sku,
+            'mes': prom_movil.index,
+            'forecast_promedio_movil': prom_movil.values,
+            'forecast_ses': ses.values,
+            'real': serie.values
+        })
+
+        comparativas.append(df_temp)
+
+    if comparativas:
+        df_result = pd.concat(comparativas).reset_index(drop=True)
+        df_result['mes'] = pd.to_datetime(df_result['mes']).dt.strftime('%Y-%m')
+        return df_result
+    else:
+        return pd.DataFrame()
 
 
 
