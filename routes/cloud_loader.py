@@ -91,6 +91,18 @@ def cargar_desde_nube():
         print("❌ ERROR en /cargar_desde_nube:", e, flush=True)
         return {"error": str(e)}
 
+@router.get("/stock_historico")
+def obtener_stock_historico():
+    try:
+        base = os.path.join(os.path.dirname(__file__), "..", "cloud")
+        df_stock_historico = pd.read_csv(os.path.join(base, "stock_historico.csv"), encoding="utf-8-sig")
+        df_stock_historico.columns = df_stock_historico.columns.str.replace("﻿", "", regex=False).str.strip().str.lower()
+        df_stock_historico["fecha"] = pd.to_datetime(df_stock_historico["fecha"], errors="coerce")
+        df_stock_historico["stock"] = pd.to_numeric(df_stock_historico["stock"], errors="coerce").fillna(0)
+        return df_stock_historico.fillna(0).to_dict(orient="records")
+    except Exception as e:
+        print("❌ Error al obtener stock histórico:", e)
+        return {"error": str(e)}
 
 
 
