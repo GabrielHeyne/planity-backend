@@ -8,6 +8,9 @@ from services.forecast import forecast_engine
 from services.stock_projector import project_stock_multi
 
 print("✅ cloud_loader.py importado correctamente", flush=True)
+# Variables globales
+demanda_limpia_global = []
+
 
 router = APIRouter(prefix="/cloud", tags=["Cloud Loader"])
 
@@ -77,8 +80,11 @@ def cargar_desde_nube():
 
         df_stock_proj = pd.DataFrame(df_stock_proj).fillna(0)
 
+        global demanda_limpia_global
+        demanda_limpia_global = df_demanda_limpia.fillna(0).to_dict(orient="records")
+
         return {
-            "demanda_limpia": df_demanda_limpia.fillna(0).to_dict(orient="records"),
+            "demanda_limpia": demanda_limpia_global,
             "forecast": df_forecast.to_dict(orient="records"),
             "maestro": df_maestro.fillna(0).to_dict(orient="records"),
             "reposiciones": df_reposiciones.fillna(0).to_dict(orient="records"),
@@ -86,6 +92,7 @@ def cargar_desde_nube():
             "stock_historico": df_stock_historico.fillna(0).to_dict(orient="records"),
             "stock_proyectado": df_stock_proj.to_dict(orient="records"),
         }
+
 
     except Exception as e:
         print("❌ ERROR en /cargar_desde_nube:", e, flush=True)
@@ -104,6 +111,10 @@ def obtener_stock_historico():
         print("❌ Error al obtener stock histórico:", e)
         return {"error": str(e)}
 
+@router.get("/demanda_limpia")
+def obtener_demanda_limpia():
+    global demanda_limpia_global
+    return demanda_limpia_global
 
 
 
